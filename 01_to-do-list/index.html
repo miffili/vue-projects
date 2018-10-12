@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    body {
+      min-height: 100vh;
+    }
+    li:hover .delete {
+      display: inline-block;
+    }
+    li {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    li:hover {
+      background-color: rgba(255, 255, 255, 0.9);
+      transform: scaleY(1.05);
+    }
+  </style>
+  <title>Vue.js | To Do</title>
+</head>
+
+<body class="bg-black flex justify-center items-center mt-20">
+
+  <div id="vue-to-do" class="w-full mx-3 sm:mx-0 sm:w-2/3 md:w-1/2 xl:w-1/3 bg-grey-light flex flex-col justify-center content-center py-6 px-4">
+
+    <div class="w-full flex justify-between mb-4">
+      <h1>Vue.js | To Do</h1>
+      <div>
+        <button v-if="items.length > 0" v-on:click="deleteAll" class="p-2 border border-grey hover:bg-red-lighter hover:border-red" title="delete all">💩</button>
+        <button v-if="hideInput" v-on:click="toggleInput" class="px-4 py-2 bg-blue text-white" title="Add items">&plus;</button>
+        <button v-else v-on:click="toggleInput" class="px-4 py-2 bg-grey-dark text-white" title="Close">&times;</button>
+      </div>
+    </div>
+
+    <div class="text-lg leading-normal">
+      <div v-if="!hideInput" class="flex justify-between align-center mb-3">
+        <input v-on:keyup.enter="addItem" type="text" placeholder="Add item" class="px-2 py-1 flex-grow" v-model="newItem">
+        <div class="flex align-center items-center p-2 mx-2 border" v-bind:class="{ 'bg-red-lighter border-red-light': newPrio, 'bg-blue-lightest border-blue-lighter': !newPrio }">
+          <input type="checkbox" id="prio" v-on:keyup.enter="addItem" v-model="newPrio">
+          <label for="prio" class="pl-1">prio</label>
+        </div>
+        <button v-on:click="addItem" class="block lg:hidden px-4 py-2 bg-blue text-white">&plus;</button>
+        <button v-on:click="addItem" class="hidden lg:block px-4 py-2 bg-blue text-white">Add to list</button>
+      </div>
+
+      <div>
+        <p v-if="items.length < 1">There's nothing to do yet. Let's get started!🐱‍💻</p>
+        <ul v-else class="list-reset">
+          <li v-for="item in items" v-on:click="toggleDone(item.name)" class="flex align-center mb-1 p-1" v-bind:class="{ 'text-red-dark': item.priority }" title="Mark as done">
+            <button v-on:click="deleteItem(item.name)" class="delete hidden px-1 mr-1 font-bold text-red" title="Delete Item">&times;</button>
+            <span v-bind:class="{ 'line-through': item.done }">{{ item.name }}</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
+  <script>
+    console.warn("This app uses the local storage. To clear it either clear the cache or clear the local storage in your dev tools (Application » Storage » Local Storage)")
+    const localItems = JSON.parse(localStorage.getItem('vue-to-do'));
+    const vue = new Vue({
+      el: '#vue-to-do',
+      data: {
+        hideInput: true,
+        items: localItems || [],
+        newItem: '',
+        newPrio: false
+      },
+      mounted() {
+        if (localStorage.getItem('vue-to-do')) {
+          try {
+            this.items = JSON.parse(localStorage.getItem('vue-to-do'));
+          } catch (e) {
+            localStorage.removeItem('vue-to-do');
+          }
+        }
+      },
+      watch: {
+        items(alteredItems) {
+          localStorage.setItem('vue-to-do', JSON.stringify(this.items));
+        }
+      },
+      methods: {
+        addItem: function() {
+          this.items.push({
+            name: this.newItem,
+            priority: this.newPrio,
+            done: false
+          });
+          this.newItem = '';
+          this.newPrio = false;
+        },
+        toggleInput: function() {
+          this.hideInput = !this.hideInput;
+        },
+        toggleDone: function(el) {
+          const currEl = this.items.find(item => item.name === el);
+          if (currEl) {
+            currEl.done = !currEl.done;
+          }
+        },
+        deleteItem: function(el) {
+          const currEl = this.items.find(item => item.name === el);
+          const currI = this.items.findIndex(item => item.name === el);
+          this.items.splice(currI, 1);
+        },
+        deleteAll: function() {
+          this.items = [];
+        }
+      }
+    });
+  </script>
+
+</body>
+
+</html>

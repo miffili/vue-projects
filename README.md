@@ -1,7 +1,7 @@
 # vue-projects
 a collection of small Vue.js projects
 
-### 01 To Do List
+### 01 [To Do List](https://www.klarafleischmann.de/vue-projects/01_to-do-list/)
 To refresh my Vue.js knowledge, I attempt to code the To Do app I watched the instructor of yesterdays course code from memory. After initial difficulties, I got into the groove again. It took me around 2 hours.
 
 Tech used:  
